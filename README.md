@@ -12,6 +12,7 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 ## Key Features
 
 ✅ **Dual Pipeline Definition**: Build pipelines with Java Fluent API or JSON configuration
+✅ **UI-Based Rule Engine**: Define validation, transformation, and business rules through visual UI
 ✅ **50+ Built-in Transformations**: Selection, filtering, aggregation, joins, window functions, and more
 ✅ **Multiple Connectors**: File, JDBC, S3, and Kafka support
 ✅ **Cloud Storage**: AWS S3 connector with full SDK integration
@@ -618,6 +619,83 @@ Enterprise features as microservices:
 - `ml-service`: ML model integration
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) and [REFACTORING_PLAN.md](REFACTORING_PLAN.md) for complete architecture details.
+
+## UI-Based Rule Engine 🎯
+
+Define data validation, transformation, and business rules through a visual interface without writing code.
+
+### Rule Types
+
+1. **Validation Rules** - Data quality checks
+   ```json
+   {
+     "ruleType": "VALIDATION",
+     "ruleName": "validate_loan_amount",
+     "conditions": [{
+       "field": "loan_amount",
+       "operator": "BETWEEN",
+       "values": [1000, 1000000]
+     }],
+     "severity": "ERROR"
+   }
+   ```
+
+2. **Transformation Rules** - Calculate new values
+   ```json
+   {
+     "ruleType": "TRANSFORMATION",
+     "ruleName": "calculate_emi",
+     "expression": {
+       "formula": "P * r * (1+r)^n / ((1+r)^n-1)",
+       "variables": {
+         "P": "loan_amount",
+         "r": "monthly_rate",
+         "n": "tenure_months"
+       }
+     },
+     "outputColumn": "monthly_emi"
+   }
+   ```
+
+3. **Business Rules** - Conditional logic
+   ```json
+   {
+     "ruleType": "BUSINESS",
+     "ruleName": "loan_approval",
+     "conditions": {
+       "type": "AND",
+       "rules": [
+         {"field": "credit_score", "operator": ">=", "value": 650},
+         {"field": "dti", "operator": "<", "value": 0.43}
+       ]
+     },
+     "actions": [
+       {"field": "status", "value": "APPROVED"}
+     ]
+   }
+   ```
+
+### Banking Rule Templates
+
+Pre-built templates for common banking scenarios:
+- **Loan Approval**: Credit score + DTI validation
+- **Fraud Detection**: Multi-factor risk scoring
+- **KYC Compliance**: Document verification
+- **Credit Scoring**: Behavior-based scoring
+- **Transaction Categorization**: Auto-categorize spending
+
+### Usage
+
+```java
+// Load pre-built template
+BusinessRule rule = BankingRuleTemplates.loanApprovalRule();
+
+// Execute on dataset
+RuleExecutor executor = new RuleExecutor();
+Dataset<Row> results = executor.execute(applications, rule);
+```
+
+See [RULE_ENGINE.md](RULE_ENGINE.md) for complete documentation and [RULE_ENGINE_IMPLEMENTATION.md](RULE_ENGINE_IMPLEMENTATION.md) for implementation guide.
 
 ## Technology Stack
 
