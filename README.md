@@ -12,11 +12,13 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 ## Key Features
 
 ✅ **Dual Pipeline Definition**: Build pipelines with Java Fluent API or JSON configuration
-✅ **14+ Built-in Transformations**: Selection, filtering, aggregation, joins, and more
+✅ **30+ Built-in Transformations**: Selection, filtering, aggregation, joins, and more
+✅ **Multiple Connectors**: File (CSV, JSON, Parquet, Avro, ORC) and JDBC support
 ✅ **Plugin Architecture**: Easy to add custom transformations
 ✅ **Type-Safe**: Compile-time validation with Java
 ✅ **Configuration-Driven**: Dynamic pipelines without code changes
 ✅ **Production-Ready**: Built on Apache Spark 3.5 for petabyte-scale data
+✅ **Enterprise Features**: Data quality, null handling, advanced joins, aggregations
 
 ## Quick Start
 
@@ -121,35 +123,119 @@ PipelineEngine engine = new PipelineEngine(spark);
 engine.execute(config);
 ```
 
-## Built-in Transformations
+## Built-in Transformations (30+)
 
-### Category 1: Selection & Filtering
+### Category 1: Selection & Filtering (8 transformations)
 - `select` - Select specific columns
 - `drop` - Drop columns
-- `filter` / `where` - Filter rows by condition
-- `distinct` - Remove duplicates
+- `filter` - Filter rows by SQL condition
+- `where` - Alias for filter
+- `distinct` - Remove duplicate rows
+- `distinctBy` - Remove duplicates based on specific columns
 - `limit` - Limit number of rows
-- `sample` - Random sample
+- `sample` - Random sample with or without replacement
 
-### Category 2: Column Operations
-- `withColumn` - Add/modify column with expression
+### Category 2: Column Operations (7 transformations)
+- `withColumn` - Add/modify column with SQL expression
 - `renameColumn` - Rename a column
+- `cast` - Cast column to different data type
+- `coalesce` - Reduce number of partitions
+- `repartition` - Repartition dataset (optionally by columns)
+- `orderBy` - Sort dataset by columns (ascending/descending)
+- `explode` - Expand array/map column into multiple rows
 
-### Category 3: Aggregation
-- `groupBy` - Group by columns and aggregate
+### Category 3: Aggregation (1 transformation)
+- `groupBy` - Group by columns and aggregate (sum, count, avg, min, max, first, last)
 
-### Category 4: Join Operations
+### Category 4: Join Operations (7 transformations)
 - `innerJoin` - Inner join with another dataset
+- `leftJoin` - Left outer join
+- `rightJoin` - Right outer join
+- `fullOuterJoin` - Full outer join
+- `leftSemiJoin` - Left semi join (filter on matching keys)
+- `leftAntiJoin` - Left anti join (filter on non-matching keys)
+- `crossJoin` - Cartesian product
 
-### Category 5: Set Operations
-- `union` - Union multiple datasets
+### Category 5: Set Operations (4 transformations)
+- `union` - Union datasets by position
+- `unionByName` - Union datasets by column names
+- `intersect` - Return rows that appear in both datasets
+- `except` - Return rows in left dataset but not in right
 
-### Category 6: Null Handling
-- `fillNa` - Fill null values
-- `dropNa` - Drop rows with nulls
+### Category 6: Null Handling (2 transformations)
+- `fillNa` - Fill null values with specified value
+- `dropNa` - Drop rows with null values (any/all strategy)
 
-### Category 7: Utility
-- `cache` - Cache dataset for performance
+### Category 7: Utility (1 transformation)
+- `cache` - Cache dataset in memory for faster access
+
+## Data Connectors
+
+### File Connector
+**Formats:** CSV, JSON, Parquet, Avro, ORC
+
+**Source Example:**
+```json
+{
+  "type": "file",
+  "config": {
+    "path": "/data/input.csv",
+    "format": "csv",
+    "options": {
+      "header": "true",
+      "inferSchema": "true"
+    }
+  }
+}
+```
+
+**Sink Example:**
+```json
+{
+  "type": "file",
+  "config": {
+    "path": "/data/output.parquet",
+    "format": "parquet",
+    "mode": "overwrite",
+    "partitionBy": ["year", "month"]
+  }
+}
+```
+
+### JDBC Connector
+**Databases:** PostgreSQL, MySQL, Oracle, SQL Server, etc.
+
+**Source Example:**
+```json
+{
+  "type": "jdbc",
+  "config": {
+    "url": "jdbc:postgresql://localhost:5432/mydb",
+    "dbtable": "customers",
+    "user": "admin",
+    "password": "secret",
+    "numPartitions": 10,
+    "partitionColumn": "customer_id",
+    "lowerBound": "0",
+    "upperBound": "1000000"
+  }
+}
+```
+
+**Sink Example:**
+```json
+{
+  "type": "jdbc",
+  "config": {
+    "url": "jdbc:postgresql://localhost:5432/mydb",
+    "dbtable": "processed_data",
+    "user": "admin",
+    "password": "secret",
+    "mode": "append",
+    "batchSize": "5000"
+  }
+}
+```
 
 ## Project Structure
 
@@ -299,17 +385,49 @@ com.mycompany.transform.MyCustomTransform
 
 ## Running Examples
 
-### Basic Pipeline Example
+### 1. Basic Pipeline Example
+Simple pipeline demonstrating the Fluent Builder API.
+
 ```bash
 cd pipeline-examples
 mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.BasicPipelineExample"
 ```
 
-### JSON Config Pipeline
+### 2. JSON Config Pipeline
+Pipeline loaded from JSON configuration file.
+
 ```bash
 mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.JsonConfigPipelineExample" \
   -Dexec.args="src/main/resources/sample-pipeline.json"
 ```
+
+### 3. Banking Pipeline Example
+Comprehensive example with multiple sources, joins, aggregations, and analytics.
+
+```bash
+mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.BankingPipelineExample"
+```
+
+**Features demonstrated:**
+- Multiple data sources (customers, transactions)
+- Complex joins (inner join with customer data)
+- Data quality checks (null handling, validation)
+- Risk scoring and categorization
+- Aggregations by region and risk category
+- Multiple output datasets
+
+### 4. Custom Transformation Example
+Shows how to create and register custom transformations.
+
+```bash
+mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.CustomTransformationExample"
+```
+
+**Features demonstrated:**
+- Creating custom transformation (sensitive data masking)
+- Registering with TransformationRegistry
+- Using custom transformation in pipeline
+- Example: Masking credit card and SSN numbers
 
 ## Technology Stack
 
@@ -350,23 +468,30 @@ Copyright © 2024 Enterprise Data Pipeline Team
 
 ## Roadmap
 
-### Phase 1 (Current)
-- ✅ Core SDK with 14+ transformations
-- ✅ File source/sink (CSV, JSON, Parquet)
-- ✅ JSON configuration
+### Phase 1 (✅ Completed)
+- ✅ Core SDK with 30+ transformations
+- ✅ File source/sink (CSV, JSON, Parquet, Avro, ORC)
+- ✅ JDBC source/sink (PostgreSQL, MySQL, Oracle, SQL Server)
+- ✅ JSON/YAML configuration
 - ✅ Fluent Builder API
+- ✅ Comprehensive examples (Basic, JSON, Banking, Custom)
+- ✅ Spring Framework 6.1.x integration
+- ✅ Plugin architecture with ServiceLoader SPI
 
-### Phase 2 (Next)
-- JDBC source/sink
-- S3 connector
-- Kafka connector
-- 36 additional transformations
+### Phase 2 (In Progress)
+- 🔄 Window functions (RowNumber, Rank, DenseRank)
+- 🔄 Additional aggregation functions
+- ⏳ S3 connector
+- ⏳ Kafka connector
+- ⏳ Specialized banking transformations (20+)
 
 ### Phase 3 (Future)
-- REST API
-- Job scheduling
-- Monitoring & metrics
-- Web UI
+- REST API for pipeline management
+- Job scheduling with cron expressions
+- Monitoring & metrics (Prometheus integration)
+- Web UI for pipeline builder
+- Data lineage tracking
+- Pipeline versioning and rollback
 
 ## Support
 

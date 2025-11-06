@@ -1,14 +1,43 @@
+# Category 1: Selection & Filtering
 com.enterprise.pipeline.transform.foundational.SelectTransform
 com.enterprise.pipeline.transform.foundational.DropTransform
 com.enterprise.pipeline.transform.foundational.FilterTransform
 com.enterprise.pipeline.transform.foundational.DistinctTransform
+com.enterprise.pipeline.transform.foundational.DistinctByTransform
 com.enterprise.pipeline.transform.foundational.LimitTransform
 com.enterprise.pipeline.transform.foundational.SampleTransform
+com.enterprise.pipeline.transform.foundational.WhereTransform
+
+# Category 2: Column Operations
 com.enterprise.pipeline.transform.foundational.WithColumnTransform
 com.enterprise.pipeline.transform.foundational.RenameColumnTransform
+com.enterprise.pipeline.transform.foundational.CastTransform
+com.enterprise.pipeline.transform.foundational.CoalesceTransform
+com.enterprise.pipeline.transform.foundational.RepartitionTransform
+com.enterprise.pipeline.transform.foundational.OrderByTransform
+com.enterprise.pipeline.transform.foundational.ExplodeTransform
+
+# Category 3: Aggregation
 com.enterprise.pipeline.transform.foundational.GroupByTransform
+
+# Category 4: Join Operations
 com.enterprise.pipeline.transform.foundational.InnerJoinTransform
+com.enterprise.pipeline.transform.foundational.LeftJoinTransform
+com.enterprise.pipeline.transform.foundational.RightJoinTransform
+com.enterprise.pipeline.transform.foundational.FullOuterJoinTransform
+com.enterprise.pipeline.transform.foundational.LeftSemiJoinTransform
+com.enterprise.pipeline.transform.foundational.LeftAntiJoinTransform
+com.enterprise.pipeline.transform.foundational.CrossJoinTransform
+
+# Category 5: Set Operations
 com.enterprise.pipeline.transform.foundational.UnionTransform
+com.enterprise.pipeline.transform.foundational.UnionByNameTransform
+com.enterprise.pipeline.transform.foundational.IntersectTransform
+com.enterprise.pipeline.transform.foundational.ExceptTransform
+
+# Category 7: Null Handling
 com.enterprise.pipeline.transform.foundational.FillNaTransform
 com.enterprise.pipeline.transform.foundational.DropNaTransform
+
+# Category 8: Utility
 com.enterprise.pipeline.transform.foundational.CacheTransform

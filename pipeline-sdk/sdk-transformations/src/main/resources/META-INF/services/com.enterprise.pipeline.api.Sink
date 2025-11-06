@@ -1,1 +1,2 @@
 com.enterprise.pipeline.connector.FileSink
+com.enterprise.pipeline.connector.JdbcSink

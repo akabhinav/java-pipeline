@@ -1,1 +1,2 @@
 com.enterprise.pipeline.connector.FileSource
+com.enterprise.pipeline.connector.JdbcSource
