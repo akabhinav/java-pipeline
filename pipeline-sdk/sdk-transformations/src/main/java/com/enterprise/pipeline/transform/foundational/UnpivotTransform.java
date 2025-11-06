@@ -173,7 +173,7 @@ public class UnpivotTransform implements Transformation {
                 .withColumn(valueColumnName,
                         functions.col("_unpivot_struct").getField(valueColumnName));
 
-        // Select only the required columns
+        // Select only the required columns - convert to Column array for varargs
         String[] finalColumns = new String[idColumns.size() + 2];
         for (int i = 0; i < idColumns.size(); i++) {
             finalColumns[i] = idColumns.get(i);
@@ -181,6 +181,9 @@ public class UnpivotTransform implements Transformation {
         finalColumns[idColumns.size()] = variableColumnName;
         finalColumns[idColumns.size() + 1] = valueColumnName;
 
-        return result.select(finalColumns);
+        org.apache.spark.sql.Column[] columnArray = java.util.Arrays.stream(finalColumns)
+                .map(functions::col)
+                .toArray(org.apache.spark.sql.Column[]::new);
+        return result.select(columnArray);
     }
 }

@@ -87,14 +87,15 @@ public class GroupByTransform implements Transformation {
             }
 
             // Convert group columns to Column objects for groupBy (fixes varargs issue)
-            Column firstGroupCol = functions.col(groupColumns.get(0));
-            Column[] restGroupCols = groupColumns.stream()
-                    .skip(1)
+            Column[] groupColsArray = groupColumns.stream()
                     .map(functions::col)
                     .toArray(Column[]::new);
 
-            return input.groupBy(firstGroupCol, restGroupCols)
-                    .agg(aggColumns.get(0), aggColumns.stream().skip(1).toArray(Column[]::new));
+            // Build aggregation array
+            Column[] aggColsArray = aggColumns.toArray(new Column[0]);
+
+            return input.groupBy(groupColsArray)
+                    .agg(aggColsArray[0], java.util.Arrays.copyOfRange(aggColsArray, 1, aggColsArray.length));
 
         } catch (Exception e) {
             throw new TransformationException(getName(),

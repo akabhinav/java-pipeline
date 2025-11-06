@@ -51,14 +51,13 @@ public class DropTransform implements Transformation {
             List<String> columns = (List<String>) config.get("columns");
             logger.debug("Dropping columns: {}", columns);
 
-            // Convert list to varargs (String... colNames)
+            // Convert list to array for varargs (String... colNames)
             if (columns.isEmpty()) {
                 return input;
             }
 
-            String first = columns.get(0);
-            String[] rest = columns.stream().skip(1).toArray(String[]::new);
-            return input.drop(first, rest);
+            String[] colArray = columns.toArray(new String[0]);
+            return input.drop(colArray);
 
         } catch (Exception e) {
             throw new TransformationException(getName(),

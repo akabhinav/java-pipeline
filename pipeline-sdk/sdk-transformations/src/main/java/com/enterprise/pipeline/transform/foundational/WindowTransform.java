@@ -88,28 +88,35 @@ public class WindowTransform implements Transformation {
             logger.debug("Applying window function '{}' on column '{}' as '{}'", function, column, alias);
 
             // Build window spec
-            WindowSpec windowSpec = Window.unboundedPreceding();
+            WindowSpec windowSpec = null;
 
             // Add partition if specified
             if (config.containsKey("partitionBy")) {
                 List<String> partitionBy = (List<String>) config.get("partitionBy");
                 logger.debug("Partitioning by: {}", partitionBy);
-                windowSpec = Window.partitionBy(
-                        partitionBy.stream()
-                                .map(functions::col)
-                                .toArray(org.apache.spark.sql.Column[]::new)
-                );
+                org.apache.spark.sql.Column[] partitionCols = partitionBy.stream()
+                        .map(functions::col)
+                        .toArray(org.apache.spark.sql.Column[]::new);
+                windowSpec = Window.partitionBy(partitionCols);
             }
 
             // Add order if specified
             if (config.containsKey("orderBy")) {
                 List<String> orderBy = (List<String>) config.get("orderBy");
                 logger.debug("Ordering by: {}", orderBy);
-                windowSpec = windowSpec.orderBy(
-                        orderBy.stream()
-                                .map(functions::col)
-                                .toArray(org.apache.spark.sql.Column[]::new)
-                );
+                org.apache.spark.sql.Column[] orderCols = orderBy.stream()
+                        .map(functions::col)
+                        .toArray(org.apache.spark.sql.Column[]::new);
+                if (windowSpec == null) {
+                    windowSpec = Window.orderBy(orderCols);
+                } else {
+                    windowSpec = windowSpec.orderBy(orderCols);
+                }
+            }
+
+            // If no partition or order specified, use default window
+            if (windowSpec == null) {
+                windowSpec = Window.partitionBy(functions.lit(1));
             }
 
             // Apply window function

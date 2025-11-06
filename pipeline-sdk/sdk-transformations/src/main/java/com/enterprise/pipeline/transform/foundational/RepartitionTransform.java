@@ -59,11 +59,10 @@ public class RepartitionTransform implements Transformation {
             if (config.containsKey("columns")) {
                 List<String> columns = (List<String>) config.get("columns");
                 logger.debug("Repartitioning to {} partitions by columns: {}", numPartitions, columns);
-                return input.repartition(numPartitions,
-                        org.apache.spark.sql.functions.col(columns.get(0)),
-                        columns.stream().skip(1)
-                                .map(org.apache.spark.sql.functions::col)
-                                .toArray(org.apache.spark.sql.Column[]::new));
+                org.apache.spark.sql.Column[] colArray = columns.stream()
+                        .map(org.apache.spark.sql.functions::col)
+                        .toArray(org.apache.spark.sql.Column[]::new);
+                return input.repartition(numPartitions, colArray);
             } else {
                 logger.debug("Repartitioning to {} partitions", numPartitions);
                 return input.repartition(numPartitions);

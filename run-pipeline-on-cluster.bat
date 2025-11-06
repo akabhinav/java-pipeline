@@ -43,7 +43,7 @@ echo [OK] Spark cluster is running
 echo.
 
 REM Check if JAR exists
-set JAR_FILE=pipeline-examples\target\pipeline-examples-1.0-SNAPSHOT.jar
+set JAR_FILE=pipeline-examples\target\pipeline-examples-1.0.0-SNAPSHOT.jar
 if not exist "%JAR_FILE%" (
     echo Building project...
     mvn clean package -DskipTests -q
@@ -63,13 +63,14 @@ docker exec pipeline-spark-master spark-submit ^
     --master spark://spark-master:7077 ^
     --deploy-mode client ^
     --class "%FULL_CLASS_NAME%" ^
-    --driver-memory 2g ^
-    --executor-memory 2g ^
-    --executor-cores 2 ^
-    --total-executor-cores 4 ^
+    --driver-memory 1g ^
+    --executor-memory 1g ^
+    --executor-cores 1 ^
+    --num-executors 2 ^
     --conf spark.sql.adaptive.enabled=true ^
+    --conf spark.dynamicAllocation.enabled=false ^
     --packages org.apache.hadoop:hadoop-aws:3.3.4,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.6.0 ^
-    /opt/spark-apps/pipeline-examples-1.0-SNAPSHOT.jar
+    /opt/spark-apps/pipeline-examples-1.0.0-SNAPSHOT.jar
 
 set EXIT_CODE=%ERRORLEVEL%
 

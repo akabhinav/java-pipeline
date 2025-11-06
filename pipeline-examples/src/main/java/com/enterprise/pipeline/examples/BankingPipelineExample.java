@@ -42,7 +42,7 @@ public class BankingPipelineExample {
 
         SparkSession spark = SparkSession.builder()
                 .appName("Banking Pipeline Example")
-                .master("local[*]")
+                // Note: .master() is omitted to use the master from spark-submit
                 .config("spark.sql.adaptive.enabled", "true")
                 .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
                 .getOrCreate();

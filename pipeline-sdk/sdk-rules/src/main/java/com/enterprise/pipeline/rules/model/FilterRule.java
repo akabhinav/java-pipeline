@@ -68,8 +68,28 @@ public record FilterRule(
             return this;
         }
 
+        public Builder enabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public Builder priority(int priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        public Builder tags(List<String> tags) {
+            this.tags = tags;
+            return this;
+        }
+
         public Builder conditions(ConditionGroup conditions) {
             this.conditions = conditions;
+            return this;
+        }
+
+        public Builder metadata(RuleMetadata metadata) {
+            this.metadata = metadata;
             return this;
         }
 

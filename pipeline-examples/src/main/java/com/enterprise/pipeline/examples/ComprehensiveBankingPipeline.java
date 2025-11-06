@@ -1,11 +1,10 @@
 package com.enterprise.pipeline.examples;
 
-import com.enterprise.pipeline.api.PipelineContext;
 import com.enterprise.pipeline.api.Transformation;
-import com.enterprise.pipeline.connectors.s3.S3Source;
-import com.enterprise.pipeline.connectors.s3.S3Sink;
-import com.enterprise.pipeline.connectors.kafka.KafkaSource;
-import com.enterprise.pipeline.connectors.kafka.KafkaSink;
+import com.enterprise.pipeline.connector.S3Source;
+import com.enterprise.pipeline.connector.S3Sink;
+import com.enterprise.pipeline.connector.KafkaSource;
+import com.enterprise.pipeline.connector.KafkaSink;
 import com.enterprise.pipeline.rules.executor.RuleExecutor;
 import com.enterprise.pipeline.rules.model.*;
 import com.enterprise.pipeline.rules.template.BankingRuleTemplates;
@@ -197,7 +196,7 @@ public class ComprehensiveBankingPipeline {
 
         // STEP 8: Fraud Detection
         System.out.println("\n  Step 8: Running fraud detection checks...");
-        BusinessRule fraudRule = BankingRuleTemplates.fraudDetectionRule();
+        ValidationRule fraudRule = BankingRuleTemplates.fraudDetectionRule();
         enriched = executor.execute(enriched, fraudRule);
 
         long fraudFlagged = enriched.filter("fraud_flag = true").count();
@@ -252,7 +251,7 @@ public class ComprehensiveBankingPipeline {
 
         // Apply fraud detection template
         RuleExecutor executor = new RuleExecutor();
-        BusinessRule fraudRule = BankingRuleTemplates.fraudDetectionRule();
+        ValidationRule fraudRule = BankingRuleTemplates.fraudDetectionRule();
 
         Dataset<Row> analyzed = executor.execute(transactions, fraudRule);
 
@@ -320,7 +319,7 @@ public class ComprehensiveBankingPipeline {
         RuleExecutor executor = new RuleExecutor();
 
         // KYC Compliance Rule
-        BusinessRule kycRule = BankingRuleTemplates.kycComplianceRule();
+        ValidationRule kycRule = BankingRuleTemplates.kycComplianceRule();
         Dataset<Row> kycChecked = executor.execute(customers, kycRule);
 
         long compliant = kycChecked.filter("kyc_status = 'VERIFIED'").count();
@@ -357,7 +356,7 @@ public class ComprehensiveBankingPipeline {
         RuleExecutor executor = new RuleExecutor();
 
         // Apply interest rate rule
-        BusinessRule interestRule = BankingRuleTemplates.interestRateDeterminationRule();
+        TransformationRule interestRule = BankingRuleTemplates.interestRateDeterminationRule();
         enriched = executor.execute(enriched, interestRule);
 
         System.out.println("\n  📊 INTEREST RATE DISTRIBUTION:");

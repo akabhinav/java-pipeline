@@ -38,22 +38,22 @@ import static org.apache.spark.sql.functions.*;
 public class RealConnectorsPipeline {
 
     // Connection Configuration
-    private static final String POSTGRES_URL = "jdbc:postgresql://localhost:5432/banking";
+    private static final String POSTGRES_URL = "jdbc:postgresql://postgres:5432/banking";
     private static final String POSTGRES_USER = "pipeline";
     private static final String POSTGRES_PASSWORD = "pipeline123";
 
-    private static final String S3_ENDPOINT = "http://localhost:9000";
+    private static final String S3_ENDPOINT = "http://minio:9000";
     private static final String S3_ACCESS_KEY = "minioadmin";
     private static final String S3_SECRET_KEY = "minioadmin";
     private static final String S3_BUCKET = "banking-data";
 
-    private static final String KAFKA_BOOTSTRAP_SERVERS = "localhost:9092";
+    private static final String KAFKA_BOOTSTRAP_SERVERS = "kafka:29092";
 
     public static void main(String[] args) {
         // Create Spark session with S3 and Kafka support
+        // Note: .master() is omitted to use the master from spark-submit
         SparkSession spark = SparkSession.builder()
                 .appName("Real Connectors Pipeline")
-                .master("local[*]")
                 .config("spark.hadoop.fs.s3a.endpoint", S3_ENDPOINT)
                 .config("spark.hadoop.fs.s3a.access.key", S3_ACCESS_KEY)
                 .config("spark.hadoop.fs.s3a.secret.key", S3_SECRET_KEY)
@@ -137,7 +137,7 @@ public class RealConnectorsPipeline {
             System.out.println("  ✓ EMI calculation applied");
 
             // Fraud Detection
-            BusinessRule fraudRule = BankingRuleTemplates.fraudDetectionRule();
+            ValidationRule fraudRule = BankingRuleTemplates.fraudDetectionRule();
             enriched = executor.execute(enriched, fraudRule);
             System.out.println("  ✓ Fraud detection applied");
 

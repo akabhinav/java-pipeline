@@ -61,7 +61,20 @@ public class FillNaTransform implements Transformation {
                 return input.na().fill(fillMap);
             } else {
                 logger.debug("Filling all nulls with value: {}", value);
-                return input.na().fill(value);
+                // Type check and cast to appropriate type for fill method
+                if (value instanceof String) {
+                    return input.na().fill((String) value);
+                } else if (value instanceof Double) {
+                    return input.na().fill((Double) value);
+                } else if (value instanceof Long) {
+                    return input.na().fill((Long) value);
+                } else if (value instanceof Integer) {
+                    return input.na().fill(((Integer) value).longValue());
+                } else if (value instanceof Boolean) {
+                    return input.na().fill((Boolean) value);
+                } else {
+                    throw new IllegalArgumentException("Unsupported value type: " + value.getClass().getName());
+                }
             }
 
         } catch (Exception e) {

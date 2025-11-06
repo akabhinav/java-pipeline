@@ -97,12 +97,10 @@ public class PivotTransform implements Transformation {
             logger.debug("Pivoting on column '{}' grouped by {}", pivotColumn, groupByColumns);
 
             // Group by columns (convert to Column objects for varargs)
-            org.apache.spark.sql.Column firstCol = org.apache.spark.sql.functions.col(groupByColumns.get(0));
-            org.apache.spark.sql.Column[] restCols = groupByColumns.stream()
-                    .skip(1)
+            org.apache.spark.sql.Column[] groupCols = groupByColumns.stream()
                     .map(org.apache.spark.sql.functions::col)
                     .toArray(org.apache.spark.sql.Column[]::new);
-            RelationalGroupedDataset grouped = input.groupBy(firstCol, restCols);
+            RelationalGroupedDataset grouped = input.groupBy(groupCols);
 
             // Pivot with or without specific values
             RelationalGroupedDataset pivoted;
