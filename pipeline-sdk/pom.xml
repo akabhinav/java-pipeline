@@ -22,5 +22,6 @@
         <module>sdk-core</module>
         <module>sdk-transformations</module>
         <module>sdk-connectors</module>
+        <module>sdk-rules</module>
     </modules>
 </project>
