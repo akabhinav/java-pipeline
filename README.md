@@ -12,13 +12,15 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 ## Key Features
 
 ✅ **Dual Pipeline Definition**: Build pipelines with Java Fluent API or JSON configuration
-✅ **30+ Built-in Transformations**: Selection, filtering, aggregation, joins, and more
+✅ **40+ Built-in Transformations**: Selection, filtering, aggregation, joins, window functions, and more
 ✅ **Multiple Connectors**: File (CSV, JSON, Parquet, Avro, ORC) and JDBC support
+✅ **Window Functions**: Row number, rank, dense rank, lag, lead, running totals
+✅ **Specialized Banking Transformations**: Account validation, credit scoring, fraud detection, interest calculation
 ✅ **Plugin Architecture**: Easy to add custom transformations
 ✅ **Type-Safe**: Compile-time validation with Java
 ✅ **Configuration-Driven**: Dynamic pipelines without code changes
 ✅ **Production-Ready**: Built on Apache Spark 3.5 for petabyte-scale data
-✅ **Enterprise Features**: Data quality, null handling, advanced joins, aggregations
+✅ **Enterprise Features**: Data quality, null handling, advanced joins, PCI compliance
 
 ## Quick Start
 
@@ -123,7 +125,7 @@ PipelineEngine engine = new PipelineEngine(spark);
 engine.execute(config);
 ```
 
-## Built-in Transformations (30+)
+## Built-in Transformations (40+)
 
 ### Category 1: Selection & Filtering (8 transformations)
 - `select` - Select specific columns
@@ -144,8 +146,9 @@ engine.execute(config);
 - `orderBy` - Sort dataset by columns (ascending/descending)
 - `explode` - Expand array/map column into multiple rows
 
-### Category 3: Aggregation (1 transformation)
+### Category 3: Aggregation (2 transformations)
 - `groupBy` - Group by columns and aggregate (sum, count, avg, min, max, first, last)
+- `aggregate` - Generic aggregation without grouping (produces single row)
 
 ### Category 4: Join Operations (7 transformations)
 - `innerJoin` - Inner join with another dataset
@@ -162,12 +165,25 @@ engine.execute(config);
 - `intersect` - Return rows that appear in both datasets
 - `except` - Return rows in left dataset but not in right
 
-### Category 6: Null Handling (2 transformations)
+### Category 6: Window Operations (4 transformations) 🆕
+- `window` - Apply window function (sum, avg, min, max, lag, lead, first, last)
+- `rowNumber` - Add row number within partitions
+- `rank` - Add rank within partitions (with gaps for ties)
+- `denseRank` - Add dense rank within partitions (no gaps for ties)
+
+### Category 7: Null Handling (2 transformations)
 - `fillNa` - Fill null values with specified value
 - `dropNa` - Drop rows with null values (any/all strategy)
 
-### Category 7: Utility (1 transformation)
+### Category 8: Utility (1 transformation)
 - `cache` - Cache dataset in memory for faster access
+
+### Specialized Banking Transformations (5 transformations) 🆕
+- `validateAccount` - Validate account numbers using business rules
+- `maskCreditCard` - Mask credit card numbers for PCI compliance (show last 4 digits)
+- `calculateInterest` - Calculate simple or compound interest for loans/deposits
+- `detectFraud` - Detect potentially fraudulent transactions based on rules
+- `calculateCreditScore` - Calculate credit score based on banking behavior
 
 ## Data Connectors
 
@@ -429,6 +445,28 @@ mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.CustomTransform
 - Using custom transformation in pipeline
 - Example: Masking credit card and SSN numbers
 
+### 5. Advanced Banking Pipeline Example 🆕
+Comprehensive Phase 2 example with specialized banking transformations.
+
+```bash
+mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.AdvancedBankingPipelineExample"
+```
+
+**Features demonstrated:**
+- **Window functions**: Row numbering, ranking, running totals
+- **Specialized banking transformations**:
+  - Account number validation
+  - Credit card masking (PCI compliance)
+  - Credit score calculation
+  - Fraud detection
+  - Interest calculation (simple & compound)
+- **Complex multi-pipeline workflow**:
+  - Customer account processing
+  - Transaction fraud detection
+  - Loan application processing
+  - Customer rankings
+- **Advanced analytics**: Customer segmentation, risk scoring, loan approvals
+
 ## Technology Stack
 
 - **Language**: Java 17 (LTS)
@@ -469,7 +507,7 @@ Copyright © 2024 Enterprise Data Pipeline Team
 ## Roadmap
 
 ### Phase 1 (✅ Completed)
-- ✅ Core SDK with 30+ transformations
+- ✅ Core SDK with 30+ foundational transformations
 - ✅ File source/sink (CSV, JSON, Parquet, Avro, ORC)
 - ✅ JDBC source/sink (PostgreSQL, MySQL, Oracle, SQL Server)
 - ✅ JSON/YAML configuration
@@ -478,20 +516,39 @@ Copyright © 2024 Enterprise Data Pipeline Team
 - ✅ Spring Framework 6.1.x integration
 - ✅ Plugin architecture with ServiceLoader SPI
 
-### Phase 2 (In Progress)
-- 🔄 Window functions (RowNumber, Rank, DenseRank)
-- 🔄 Additional aggregation functions
-- ⏳ S3 connector
-- ⏳ Kafka connector
-- ⏳ Specialized banking transformations (20+)
+### Phase 2 (✅ Completed)
+- ✅ Window functions (Window, RowNumber, Rank, DenseRank)
+- ✅ Additional aggregation functions (Aggregate)
+- ✅ Specialized banking transformations (5+):
+  - ✅ Account validation
+  - ✅ Credit card masking (PCI compliance)
+  - ✅ Interest calculation (simple & compound)
+  - ✅ Fraud detection
+  - ✅ Credit score calculation
+- ✅ Advanced banking pipeline example
+- ✅ 40+ total transformations
 
-### Phase 3 (Future)
+### Phase 3 (Next)
+- ⏳ S3 connector (with AWS SDK integration)
+- ⏳ Kafka connector (source & sink)
+- ⏳ Additional banking transformations (15+ more):
+  - Currency conversion
+  - Risk assessment
+  - KYC validation
+  - Transaction categorization
+- ⏳ Advanced transformations:
+  - Pivot/Unpivot
+  - Flatten nested structures
+  - Custom UDFs support
+
+### Phase 4 (Future)
 - REST API for pipeline management
 - Job scheduling with cron expressions
 - Monitoring & metrics (Prometheus integration)
 - Web UI for pipeline builder
 - Data lineage tracking
 - Pipeline versioning and rollback
+- Real-time streaming support
 
 ## Support
 

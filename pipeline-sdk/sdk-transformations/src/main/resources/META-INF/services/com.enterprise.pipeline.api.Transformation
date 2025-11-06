@@ -19,6 +19,7 @@ com.enterprise.pipeline.transform.foundational.ExplodeTransform
 
 # Category 3: Aggregation
 com.enterprise.pipeline.transform.foundational.GroupByTransform
+com.enterprise.pipeline.transform.foundational.AggregateTransform
 
 # Category 4: Join Operations
 com.enterprise.pipeline.transform.foundational.InnerJoinTransform
@@ -35,9 +36,22 @@ com.enterprise.pipeline.transform.foundational.UnionByNameTransform
 com.enterprise.pipeline.transform.foundational.IntersectTransform
 com.enterprise.pipeline.transform.foundational.ExceptTransform
 
+# Category 6: Window Operations
+com.enterprise.pipeline.transform.foundational.WindowTransform
+com.enterprise.pipeline.transform.foundational.RowNumberTransform
+com.enterprise.pipeline.transform.foundational.RankTransform
+com.enterprise.pipeline.transform.foundational.DenseRankTransform
+
 # Category 7: Null Handling
 com.enterprise.pipeline.transform.foundational.FillNaTransform
 com.enterprise.pipeline.transform.foundational.DropNaTransform
 
 # Category 8: Utility
 com.enterprise.pipeline.transform.foundational.CacheTransform
+
+# Specialized Banking Transformations
+com.enterprise.pipeline.transform.specialized.ValidateAccountTransform
+com.enterprise.pipeline.transform.specialized.MaskCreditCardTransform
+com.enterprise.pipeline.transform.specialized.CalculateInterestTransform
+com.enterprise.pipeline.transform.specialized.DetectFraudTransform
+com.enterprise.pipeline.transform.specialized.CalculateCreditScoreTransform
