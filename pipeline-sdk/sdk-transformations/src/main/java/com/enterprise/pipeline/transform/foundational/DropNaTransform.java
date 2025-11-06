@@ -43,7 +43,11 @@ public class DropNaTransform implements Transformation {
             if (config.containsKey("columns")) {
                 List<String> columns = (List<String>) config.get("columns");
                 logger.debug("Dropping rows with nulls ({}) in columns: {}", how, columns);
-                return input.na().drop(how, columns.toArray(new String[0]));
+
+                // Convert list to Scala Seq
+                scala.collection.Seq<String> colSeq = scala.collection.JavaConverters
+                        .asScalaBuffer(columns).toSeq();
+                return input.na().drop(how, colSeq);
             } else {
                 logger.debug("Dropping rows with nulls ({})", how);
                 return input.na().drop(how);

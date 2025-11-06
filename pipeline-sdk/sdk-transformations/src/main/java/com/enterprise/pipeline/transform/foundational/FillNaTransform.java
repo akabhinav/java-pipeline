@@ -9,6 +9,7 @@ import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,13 @@ public class FillNaTransform implements Transformation {
             if (config.containsKey("columns")) {
                 List<String> columns = (List<String>) config.get("columns");
                 logger.debug("Filling nulls in columns {} with value: {}", columns, value);
-                return input.na().fill(value, columns.toArray(new String[0]));
+
+                // Create a map for column-specific fill (avoids varargs issue)
+                Map<String, Object> fillMap = new HashMap<>();
+                for (String col : columns) {
+                    fillMap.put(col, value);
+                }
+                return input.na().fill(fillMap);
             } else {
                 logger.debug("Filling all nulls with value: {}", value);
                 return input.na().fill(value);

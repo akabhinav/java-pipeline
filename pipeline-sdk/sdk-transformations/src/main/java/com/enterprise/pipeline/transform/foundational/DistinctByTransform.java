@@ -51,7 +51,10 @@ public class DistinctByTransform implements Transformation {
             List<String> columns = (List<String>) config.get("columns");
             logger.debug("Removing duplicates based on columns: {}", columns);
 
-            return input.dropDuplicates(columns.toArray(new String[0]));
+            // Convert list to varargs (Scala Seq)
+            scala.collection.Seq<String> colSeq = scala.collection.JavaConverters
+                    .asScalaBuffer(columns).toSeq();
+            return input.dropDuplicates(colSeq);
 
         } catch (Exception e) {
             throw new TransformationException(getName(),
