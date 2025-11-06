@@ -287,6 +287,76 @@ services:
     networks:
       - pipeline-network
 
+  # ===========================================================================
+  # Hive Metastore - Catalog for Data Lake Metadata
+  # ===========================================================================
+  hive-metastore:
+    image: apache/hive:4.0.0
+    container_name: pipeline-hive-metastore
+    hostname: hive-metastore
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "9083:9083"    # Metastore Thrift port
+    environment:
+      SERVICE_NAME: metastore
+      DB_DRIVER: postgres
+      SERVICE_OPTS: "-Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
+                     -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/metastore
+                     -Djavax.jdo.option.ConnectionUserName=pipeline
+                     -Djavax.jdo.option.ConnectionPassword=pipeline123"
+      HIVE_METASTORE_WAREHOUSE_DIR: s3a://data-lake/
+      HIVE_METASTORE_HADOOP_OPTS: "-Dfs.s3a.endpoint=http://minio:9000
+                                   -Dfs.s3a.access.key=minioadmin
+                                   -Dfs.s3a.secret.key=minioadmin
+                                   -Dfs.s3a.path.style.access=true
+                                   -Dfs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem"
+    volumes:
+      - ./docker/hive/conf:/opt/hive/conf
+      - hive-metastore-data:/opt/hive/data
+    networks:
+      - pipeline-network
+    command: >
+      sh -c "
+      echo 'Waiting for PostgreSQL...';
+      sleep 10;
+      /opt/hive/bin/schematool -dbType postgres -initSchema || true;
+      /opt/hive/bin/start-metastore
+      "
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9083"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ===========================================================================
+  # Trino - Distributed SQL Query Engine for Data Lake
+  # ===========================================================================
+  trino:
+    image: trinodb/trino:438
+    container_name: pipeline-trino
+    hostname: trino
+    depends_on:
+      hive-metastore:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "8085:8080"    # Trino Web UI and API
+    environment:
+      TRINO_ENVIRONMENT: local
+    volumes:
+      - ./docker/trino/etc:/etc/trino
+      - trino-data:/data/trino
+    networks:
+      - pipeline-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/info"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
 # =============================================================================
 # Networks
 # =============================================================================
@@ -317,3 +387,7 @@ volumes:
     name: pipeline-spark-worker-1-data
   spark-worker-2-data:
     name: pipeline-spark-worker-2-data
+  hive-metastore-data:
+    name: pipeline-hive-metastore-data
+  trino-data:
+    name: pipeline-trino-data
