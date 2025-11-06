@@ -1,0 +1,75 @@
+{
+  "name": "customer-analysis-pipeline",
+  "version": "1.0",
+  "source": {
+    "type": "file",
+    "name": "customers",
+    "config": {
+      "path": "/data/input/customers.csv",
+      "format": "csv",
+      "options": {
+        "header": "true",
+        "inferSchema": "true"
+      }
+    }
+  },
+  "transformations": [
+    {
+      "type": "select",
+      "config": {
+        "columns": ["customer_id", "name", "age", "city", "purchase_amount", "status"]
+      }
+    },
+    {
+      "type": "filter",
+      "config": {
+        "condition": "age >= 18 AND status = 'active'"
+      }
+    },
+    {
+      "type": "withColumn",
+      "config": {
+        "columnName": "customer_segment",
+        "expression": "CASE WHEN purchase_amount > 1000 THEN 'Premium' WHEN purchase_amount > 500 THEN 'Gold' ELSE 'Standard' END"
+      }
+    },
+    {
+      "type": "withColumn",
+      "config": {
+        "columnName": "name_upper",
+        "expression": "upper(name)"
+      }
+    },
+    {
+      "type": "dropNa",
+      "config": {
+        "how": "any",
+        "columns": ["customer_id", "name", "purchase_amount"]
+      }
+    },
+    {
+      "type": "groupBy",
+      "name": "city_summary",
+      "config": {
+        "columns": ["city", "customer_segment"],
+        "aggregations": {
+          "purchase_amount": "sum",
+          "customer_id": "count"
+        }
+      }
+    }
+  ],
+  "sink": {
+    "type": "file",
+    "config": {
+      "path": "/data/output/customer_analysis.parquet",
+      "format": "parquet",
+      "mode": "overwrite",
+      "partitionBy": ["customer_segment"]
+    }
+  },
+  "settings": {
+    "spark.sql.shuffle.partitions": "200",
+    "pipeline.description": "Customer analysis pipeline with segmentation"
+  }
+}
