@@ -17,6 +17,7 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 ✅ **Multiple Connectors**: File, JDBC, S3, and Kafka support
 ✅ **Cloud Storage**: AWS S3 connector with full SDK integration
 ✅ **Streaming Support**: Apache Kafka connector for real-time data processing
+✅ **Data Lake (Delta Lake)**: Medallion architecture with ACID transactions, time travel, and schema evolution 🆕
 ✅ **Window Functions**: Row number, rank, dense rank, lag, lead, running totals
 ✅ **Advanced Transformations**: Pivot, unpivot, flatten nested structures
 ✅ **Specialized Banking Transformations**: 9+ banking-specific transformations
@@ -245,6 +246,114 @@ private static Dataset<Row> createLoanApplicationData(SparkSession spark) {
 For complete documentation, see:
 - [pipeline-examples/README.md](pipeline-examples/README.md) - Detailed guide
 - [ComprehensiveBankingPipeline.java](pipeline-examples/src/main/java/com/enterprise/pipeline/examples/ComprehensiveBankingPipeline.java) - Full source code
+
+---
+
+## 🏗️ Data Lake on MinIO (Delta Lake) 🆕
+
+Build a **production-grade Data Lake** on your local system using **MinIO** (S3-compatible) with **Delta Lake** format!
+
+### What is it?
+
+A complete **Medallion Architecture** data lake implementation:
+- **Bronze Layer**: Raw, immutable data (append-only)
+- **Silver Layer**: Cleaned, validated, deduplicated data
+- **Gold Layer**: Business-ready aggregates and metrics
+
+### Key Features
+
+✅ **ACID Transactions** - Atomic writes, no partial updates
+✅ **Time Travel** - Query any historical version of your data
+✅ **Schema Evolution** - Add columns without breaking existing data
+✅ **Upserts (MERGE)** - Update or insert in a single operation
+✅ **Data Versioning** - Full audit trail of all changes
+✅ **S3-Compatible** - Works with MinIO locally, AWS S3 in production
+
+### Quick Start
+
+```bash
+# 1. Start local environment (includes MinIO)
+./start-local-environment.sh   # Mac/Linux
+start-local-environment.bat    # Windows
+
+# 2. Run Data Lake pipeline
+./run-data-lake.sh             # Mac/Linux
+run-data-lake.bat              # Windows
+
+# 3. View your Data Lake in MinIO Console
+# http://localhost:9001 (minioadmin/minioadmin)
+```
+
+### What You Get
+
+```
+s3a://data-lake/
+  ├── bronze/              # Raw data (append-only)
+  │   ├── loan_applications/
+  │   └── customers/
+  ├── silver/              # Cleaned & validated
+  │   ├── loan_applications_clean/
+  │   └── customers_clean/
+  └── gold/                # Business aggregates
+      ├── loan_summary_by_purpose/
+      └── customer_metrics/
+```
+
+### Example: Time Travel
+
+```java
+// Query current version
+Dataset<Row> current = spark.read()
+    .format("delta")
+    .load("s3a://data-lake/silver/loan_applications_clean");
+
+// Query yesterday's data
+Dataset<Row> yesterday = spark.read()
+    .format("delta")
+    .option("timestampAsOf", "2025-11-05 10:00:00")
+    .load("s3a://data-lake/silver/loan_applications_clean");
+
+// View table history
+DeltaTable deltaTable = DeltaTable.forPath(spark, path);
+deltaTable.history(10).show();
+```
+
+### Example: Upsert (MERGE)
+
+```java
+// Update existing customers, insert new ones
+DeltaTable silverTable = DeltaTable.forPath(spark, silverPath);
+
+silverTable.as("target")
+    .merge(updates.as("source"), "target.customer_id = source.customer_id")
+    .whenMatched()
+    .updateAll()      // Update if exists
+    .whenNotMatched()
+    .insertAll()      // Insert if new
+    .execute();
+```
+
+### Complete Documentation
+
+📖 **[DATA_LAKE_GUIDE.md](DATA_LAKE_GUIDE.md)** - Comprehensive guide covering:
+- Medallion Architecture details
+- All Delta Lake features with examples
+- Time travel, upserts, schema evolution
+- Performance optimization
+- Production deployment
+- Troubleshooting
+
+📄 **[DataLakePipeline.java](pipeline-examples/src/main/java/com/enterprise/pipeline/examples/DataLakePipeline.java)** - Full source code
+
+### Use Cases
+
+1. **Data Warehousing**: Store all your business data with full history
+2. **Regulatory Compliance**: Time travel for audit trails
+3. **Data Quality**: Track quality metrics across layers
+4. **Real-time Analytics**: Query current state with SQL
+5. **Data Science**: Version control for ML training datasets
+
+---
 
 ## Built-in Transformations (50+)
 

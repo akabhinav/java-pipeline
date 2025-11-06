@@ -20,6 +20,11 @@ echo Step 1: Uploading data to MinIO (S3)...
 REM Configure mc (MinIO client)
 docker exec pipeline-minio-init mc alias set myminio http://minio:9000 minioadmin minioadmin 2>nul
 
+REM Create Data Lake bucket for Delta Lake
+echo   Creating data-lake bucket...
+docker exec pipeline-minio-init mc mb myminio/data-lake --ignore-existing
+docker exec pipeline-minio-init mc anonymous set download myminio/data-lake
+
 REM Copy data files to MinIO container
 echo   Copying customers.csv...
 docker cp docker\minio\data\customers.csv pipeline-minio:/tmp/customers.csv
@@ -30,6 +35,7 @@ docker cp docker\minio\data\credit_bureau.csv pipeline-minio:/tmp/credit_bureau.
 docker exec pipeline-minio-init mc cp /tmp/credit_bureau.csv myminio/banking-data/credit-bureau/credit_bureau.csv
 
 echo [OK] Data uploaded to MinIO successfully!
+echo [OK] Data Lake bucket created (s3a://data-lake/)
 echo.
 
 REM ============================================================================
