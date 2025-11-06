@@ -1,0 +1,4 @@
+com.enterprise.pipeline.connector.FileSink
+com.enterprise.pipeline.connector.JdbcSink
+com.enterprise.pipeline.connector.S3Sink
+com.enterprise.pipeline.connector.KafkaSink

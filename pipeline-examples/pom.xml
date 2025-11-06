@@ -28,6 +28,11 @@
             <artifactId>sdk-transformations</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.enterprise.pipeline</groupId>
+            <artifactId>sdk-connectors</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Apache Spark -->
         <dependency>

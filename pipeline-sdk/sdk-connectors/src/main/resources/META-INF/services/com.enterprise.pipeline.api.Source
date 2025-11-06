@@ -1,0 +1,4 @@
+com.enterprise.pipeline.connector.FileSource
+com.enterprise.pipeline.connector.JdbcSource
+com.enterprise.pipeline.connector.S3Source
+com.enterprise.pipeline.connector.KafkaSource

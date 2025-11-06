@@ -575,6 +575,50 @@ mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.Phase3Comprehen
   - Risk profiling and scoring
   - Category-based spending analysis
 
+## Modular Architecture 🏗️
+
+The platform is designed with **SDK independence** and **modularity** in mind. You can use components independently or together.
+
+### Core SDK (Standalone)
+Use these modules without any platform dependencies:
+
+```xml
+<!-- Core interfaces -->
+<dependency>
+    <groupId>com.enterprise.pipeline</groupId>
+    <artifactId>sdk-api</artifactId>
+</dependency>
+
+<!-- Execution engine -->
+<dependency>
+    <groupId>com.enterprise.pipeline</groupId>
+    <artifactId>sdk-core</artifactId>
+</dependency>
+
+<!-- 50+ built-in transformations -->
+<dependency>
+    <groupId>com.enterprise.pipeline</groupId>
+    <artifactId>sdk-transformations</artifactId>
+</dependency>
+
+<!-- Data connectors (File, JDBC, S3, Kafka) -->
+<dependency>
+    <groupId>com.enterprise.pipeline</groupId>
+    <artifactId>sdk-connectors</artifactId>
+</dependency>
+```
+
+### Platform Services (Coming Soon)
+Enterprise features as microservices:
+- `orchestrator-service`: Workflow orchestration & scheduling
+- `catalog-service`: Metadata management & lineage
+- `quality-service`: Data quality validation
+- `governance-service`: Security, RBAC, audit
+- `monitoring-service`: Real-time monitoring & alerts
+- `ml-service`: ML model integration
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) and [REFACTORING_PLAN.md](REFACTORING_PLAN.md) for complete architecture details.
+
 ## Technology Stack
 
 - **Language**: Java 17 (LTS)
