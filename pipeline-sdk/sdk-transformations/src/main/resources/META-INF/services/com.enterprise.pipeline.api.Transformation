@@ -49,9 +49,18 @@ com.enterprise.pipeline.transform.foundational.DropNaTransform
 # Category 8: Utility
 com.enterprise.pipeline.transform.foundational.CacheTransform
 
+# Category 9: Advanced Transformations
+com.enterprise.pipeline.transform.foundational.PivotTransform
+com.enterprise.pipeline.transform.foundational.UnpivotTransform
+com.enterprise.pipeline.transform.foundational.FlattenTransform
+
 # Specialized Banking Transformations
 com.enterprise.pipeline.transform.specialized.ValidateAccountTransform
 com.enterprise.pipeline.transform.specialized.MaskCreditCardTransform
 com.enterprise.pipeline.transform.specialized.CalculateInterestTransform
 com.enterprise.pipeline.transform.specialized.DetectFraudTransform
 com.enterprise.pipeline.transform.specialized.CalculateCreditScoreTransform
+com.enterprise.pipeline.transform.specialized.ConvertCurrencyTransform
+com.enterprise.pipeline.transform.specialized.AssessRiskTransform
+com.enterprise.pipeline.transform.specialized.ValidateKycTransform
+com.enterprise.pipeline.transform.specialized.CategorizeTransactionTransform

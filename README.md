@@ -12,10 +12,13 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 ## Key Features
 
 ✅ **Dual Pipeline Definition**: Build pipelines with Java Fluent API or JSON configuration
-✅ **40+ Built-in Transformations**: Selection, filtering, aggregation, joins, window functions, and more
-✅ **Multiple Connectors**: File (CSV, JSON, Parquet, Avro, ORC) and JDBC support
+✅ **50+ Built-in Transformations**: Selection, filtering, aggregation, joins, window functions, and more
+✅ **Multiple Connectors**: File, JDBC, S3, and Kafka support
+✅ **Cloud Storage**: AWS S3 connector with full SDK integration
+✅ **Streaming Support**: Apache Kafka connector for real-time data processing
 ✅ **Window Functions**: Row number, rank, dense rank, lag, lead, running totals
-✅ **Specialized Banking Transformations**: Account validation, credit scoring, fraud detection, interest calculation
+✅ **Advanced Transformations**: Pivot, unpivot, flatten nested structures
+✅ **Specialized Banking Transformations**: 9+ banking-specific transformations
 ✅ **Plugin Architecture**: Easy to add custom transformations
 ✅ **Type-Safe**: Compile-time validation with Java
 ✅ **Configuration-Driven**: Dynamic pipelines without code changes
@@ -125,7 +128,7 @@ PipelineEngine engine = new PipelineEngine(spark);
 engine.execute(config);
 ```
 
-## Built-in Transformations (40+)
+## Built-in Transformations (50+)
 
 ### Category 1: Selection & Filtering (8 transformations)
 - `select` - Select specific columns
@@ -178,12 +181,21 @@ engine.execute(config);
 ### Category 8: Utility (1 transformation)
 - `cache` - Cache dataset in memory for faster access
 
-### Specialized Banking Transformations (5 transformations) 🆕
+### Category 9: Advanced Transformations (3 transformations) 🆕
+- `pivot` - Convert rows to columns (long to wide format)
+- `unpivot` - Convert columns to rows (wide to long format)
+- `flatten` - Flatten nested structures (struct, nested JSON)
+
+### Specialized Banking Transformations (9 transformations) 🆕
 - `validateAccount` - Validate account numbers using business rules
 - `maskCreditCard` - Mask credit card numbers for PCI compliance (show last 4 digits)
 - `calculateInterest` - Calculate simple or compound interest for loans/deposits
 - `detectFraud` - Detect potentially fraudulent transactions based on rules
 - `calculateCreditScore` - Calculate credit score based on banking behavior
+- `convertCurrency` - Convert amounts between currencies with exchange rates
+- `assessRisk` - Comprehensive risk assessment based on multiple factors
+- `validateKyc` - Validate Know Your Customer (KYC) compliance
+- `categorizeTransaction` - Categorize transactions into spending categories
 
 ## Data Connectors
 
@@ -214,6 +226,76 @@ engine.execute(config);
     "format": "parquet",
     "mode": "overwrite",
     "partitionBy": ["year", "month"]
+  }
+}
+```
+
+### S3 Connector 🆕
+**Cloud Storage:** AWS S3 buckets with full SDK integration
+
+**Source Example:**
+```json
+{
+  "type": "s3",
+  "config": {
+    "bucket": "my-data-bucket",
+    "key": "data/customers.csv",
+    "format": "csv",
+    "region": "us-west-2",
+    "accessKey": "${AWS_ACCESS_KEY}",
+    "secretKey": "${AWS_SECRET_KEY}",
+    "options": {
+      "header": "true",
+      "inferSchema": "true"
+    }
+  }
+}
+```
+
+**Sink Example:**
+```json
+{
+  "type": "s3",
+  "config": {
+    "bucket": "my-data-bucket",
+    "key": "output/processed-data.parquet",
+    "format": "parquet",
+    "mode": "overwrite",
+    "region": "us-west-2",
+    "partitionBy": ["year", "month"]
+  }
+}
+```
+
+### Kafka Connector 🆕
+**Streaming Platform:** Apache Kafka for real-time data processing
+
+**Source Example:**
+```json
+{
+  "type": "kafka",
+  "config": {
+    "bootstrapServers": "localhost:9092",
+    "topic": "transactions",
+    "startingOffsets": "earliest",
+    "groupId": "pipeline-consumer-group"
+  }
+}
+```
+
+**Sink Example:**
+```json
+{
+  "type": "kafka",
+  "config": {
+    "bootstrapServers": "localhost:9092",
+    "topic": "processed-events",
+    "keyColumn": "customer_id",
+    "valueColumn": "event_payload",
+    "options": {
+      "compression.type": "gzip",
+      "acks": "all"
+    }
   }
 }
 ```
@@ -445,7 +527,7 @@ mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.CustomTransform
 - Using custom transformation in pipeline
 - Example: Masking credit card and SSN numbers
 
-### 5. Advanced Banking Pipeline Example 🆕
+### 5. Advanced Banking Pipeline Example
 Comprehensive Phase 2 example with specialized banking transformations.
 
 ```bash
@@ -466,6 +548,32 @@ mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.AdvancedBanking
   - Loan application processing
   - Customer rankings
 - **Advanced analytics**: Customer segmentation, risk scoring, loan approvals
+
+### 6. Phase 3 Comprehensive Example 🆕
+Comprehensive Phase 3 example demonstrating all new features.
+
+```bash
+mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.Phase3ComprehensiveExample"
+```
+
+**Features demonstrated:**
+- **Cloud & Streaming Connectors**:
+  - AWS S3 source and sink
+  - Apache Kafka streaming integration
+- **Advanced Banking Transformations**:
+  - Multi-currency conversion with exchange rates
+  - Comprehensive KYC validation
+  - Multi-factor risk assessment
+  - Intelligent transaction categorization
+- **Advanced Data Transformations**:
+  - Pivot (long to wide format)
+  - Unpivot (wide to long format)
+  - Flatten nested JSON/struct data
+- **End-to-End Workflows**:
+  - International transaction processing
+  - Customer compliance validation
+  - Risk profiling and scoring
+  - Category-based spending analysis
 
 ## Technology Stack
 
@@ -528,18 +636,20 @@ Copyright © 2024 Enterprise Data Pipeline Team
 - ✅ Advanced banking pipeline example
 - ✅ 40+ total transformations
 
-### Phase 3 (Next)
-- ⏳ S3 connector (with AWS SDK integration)
-- ⏳ Kafka connector (source & sink)
-- ⏳ Additional banking transformations (15+ more):
-  - Currency conversion
-  - Risk assessment
-  - KYC validation
-  - Transaction categorization
-- ⏳ Advanced transformations:
-  - Pivot/Unpivot
-  - Flatten nested structures
-  - Custom UDFs support
+### Phase 3 (✅ Completed)
+- ✅ S3 connector (with AWS SDK integration)
+- ✅ Kafka connector (source & sink)
+- ✅ Additional banking transformations (9+ total):
+  - ✅ Currency conversion with exchange rates
+  - ✅ Comprehensive risk assessment
+  - ✅ KYC validation with compliance levels
+  - ✅ Transaction categorization (14+ categories)
+- ✅ Advanced transformations:
+  - ✅ Pivot (long to wide format)
+  - ✅ Unpivot (wide to long format)
+  - ✅ Flatten nested structures
+- ✅ Phase 3 comprehensive example
+- ✅ 50+ total transformations
 
 ### Phase 4 (Future)
 - REST API for pipeline management
