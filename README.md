@@ -129,6 +129,123 @@ PipelineEngine engine = new PipelineEngine(spark);
 engine.execute(config);
 ```
 
+## 🧪 Testing All Features - Comprehensive Pipeline
+
+**Want to see everything in action?** We've created a complete end-to-end banking pipeline that demonstrates ALL platform features!
+
+### Quick Test Run
+
+```bash
+# From project root
+cd pipeline-examples
+
+# Option 1: Automated script (recommended)
+./run-comprehensive-pipeline.sh
+
+# Option 2: Manual Maven execution
+mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.ComprehensiveBankingPipeline"
+```
+
+### What Gets Tested
+
+The `ComprehensiveBankingPipeline` runs **5 complete scenarios**:
+
+1. **📋 Loan Application Processing** (End-to-End)
+   - ✅ Data validation with validation rules
+   - ✅ Multi-source enrichment (customer data + credit bureau)
+   - ✅ Credit scoring and grading
+   - ✅ Business rule-based approval/rejection
+   - ✅ EMI calculation for approved loans
+   - ✅ Fraud detection
+   - ✅ Risk-based filtering
+
+2. **🔍 Real-Time Fraud Detection**
+   - ✅ Transaction monitoring (simulating Kafka stream)
+   - ✅ Multi-factor fraud scoring
+   - ✅ High-value transaction filtering
+
+3. **👤 Customer 360 View**
+   - ✅ Multi-source data integration
+   - ✅ Transaction aggregation
+   - ✅ Customer lifetime value calculation
+
+4. **⚖️ Regulatory Compliance**
+   - ✅ KYC document validation
+   - ✅ Compliance status checks
+   - ✅ Rejection reason tracking
+
+5. **📊 Advanced Analytics**
+   - ✅ Risk-based interest rate determination
+   - ✅ Revenue projection analysis
+   - ✅ Portfolio analytics
+
+### Expected Output
+
+```
+================================================================================
+🚀 Comprehensive Banking Pipeline - Starting
+================================================================================
+
+📋 SCENARIO 1: End-to-End Loan Application Processing
+  Step 1: Loading loan applications...
+  ✓ Loaded 15 loan applications
+  Step 2: Applying validation rules...
+  ✓ Valid records: 15 / 15
+  Step 3: Enriching with customer data from S3...
+  ✓ Enriched with customer demographics
+  ...
+
+  📊 FINAL RESULTS:
+  +---------------+---------------+------------+-------------+--------+
+  | application_id| applicant_name| loan_amount| loan_status|   ...  |
+  +---------------+---------------+------------+-------------+--------+
+  | LA001         | John Doe      | 500000.0   | APPROVED    |   ...  |
+  | LA002         | Jane Smith    | 150000.0   | REJECTED    |   ...  |
+  +---------------+---------------+------------+-------------+--------+
+
+  📈 PIPELINE STATISTICS:
+  +-------------+-----+
+  |  loan_status|count|
+  +-------------+-----+
+  |     APPROVED|   10|
+  |     REJECTED|    5|
+  +-------------+-----+
+
+================================================================================
+✅ All Pipeline Scenarios Completed Successfully!
+================================================================================
+```
+
+### Features Demonstrated
+
+| Feature Category | What's Tested | Code Location |
+|-----------------|---------------|---------------|
+| **Rule Engine** | All 4 rule types (Validation, Transformation, Business, Filter) | Lines 100-250 |
+| **Transformations** | 50+ transformations across 9 categories | Lines 260-380 |
+| **Connectors** | S3, Kafka, CSV, Parquet (simulated) | Lines 400-480 |
+| **Banking Domain** | 9 banking-specific templates | Lines 500-650 |
+| **Data Quality** | Validation, enrichment, cleansing | Lines 100-150 |
+| **Real-time Processing** | Kafka stream simulation | Lines 300-350 |
+| **Multi-source Integration** | 3+ source joins | Lines 400-450 |
+
+### Customization
+
+The comprehensive pipeline uses sample data. To test with your own data:
+
+```java
+// Edit ComprehensiveBankingPipeline.java
+private static Dataset<Row> createLoanApplicationData(SparkSession spark) {
+    // Replace with your data source
+    return spark.read()
+        .option("header", "true")
+        .csv("s3://your-bucket/loan-applications.csv");
+}
+```
+
+For complete documentation, see:
+- [pipeline-examples/README.md](pipeline-examples/README.md) - Detailed guide
+- [ComprehensiveBankingPipeline.java](pipeline-examples/src/main/java/com/enterprise/pipeline/examples/ComprehensiveBankingPipeline.java) - Full source code
+
 ## Built-in Transformations (50+)
 
 ### Category 1: Selection & Filtering (8 transformations)
