@@ -33,6 +33,11 @@
             <artifactId>sdk-connectors</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.enterprise.pipeline</groupId>
+            <artifactId>sdk-rules</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Apache Spark -->
         <dependency>
