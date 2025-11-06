@@ -18,6 +18,8 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 ✅ **Cloud Storage**: AWS S3 connector with full SDK integration
 ✅ **Streaming Support**: Apache Kafka connector for real-time data processing
 ✅ **Data Lake (Delta Lake)**: Medallion architecture with ACID transactions, time travel, and schema evolution 🆕
+✅ **SQL Query Engine (Trino)**: Query Data Lake with standard SQL, no Spark code needed 🆕
+✅ **Catalog (Hive Metastore)**: Central metadata store for all tables, JDBC/ODBC connectivity 🆕
 ✅ **Window Functions**: Row number, rank, dense rank, lag, lead, running totals
 ✅ **Advanced Transformations**: Pivot, unpivot, flatten nested structures
 ✅ **Specialized Banking Transformations**: 9+ banking-specific transformations
@@ -352,6 +354,113 @@ silverTable.as("target")
 3. **Data Quality**: Track quality metrics across layers
 4. **Real-time Analytics**: Query current state with SQL
 5. **Data Science**: Version control for ML training datasets
+
+---
+
+## 🔍 Catalog & SQL Query Engine (Trino) 🆕
+
+Query your Data Lake with **standard SQL** - no Spark code needed! We've added **Hive Metastore** (catalog) and **Trino** (query engine) to your local environment.
+
+### What You Get
+
+**Hive Metastore** (Port 9083)
+- Central metadata catalog for all Data Lake tables
+- Stores schemas, partitions, locations
+- PostgreSQL backend for persistence
+
+**Trino Query Engine** (Port 8085)
+- Fast distributed SQL query engine
+- Query Delta Lake with standard SQL
+- Web UI for monitoring: http://localhost:8085
+- JDBC/ODBC for BI tools
+
+### Quick Start
+
+```bash
+# 1. Start environment (includes Trino & Metastore)
+./start-local-environment.sh
+
+# 2. Create Data Lake
+./run-data-lake.sh
+
+# 3. Connect to Trino and query!
+docker exec -it pipeline-trino trino --catalog delta --schema datalake
+```
+
+### Example Queries
+
+```sql
+-- Show all tables
+SHOW TABLES;
+
+-- Query Delta Lake table with SQL
+SELECT * FROM loan_applications_silver LIMIT 10;
+
+-- Aggregate query
+SELECT
+    loan_purpose,
+    COUNT(*) as total_applications,
+    SUM(loan_amount) as total_amount,
+    AVG(loan_amount) as avg_amount
+FROM loan_applications_silver
+GROUP BY loan_purpose
+ORDER BY total_amount DESC;
+
+-- Join multiple tables
+SELECT
+    l.application_id,
+    l.loan_amount,
+    c.monthly_income,
+    ROUND(l.loan_amount / c.monthly_income, 2) as loan_to_income_ratio
+FROM loan_applications_silver l
+JOIN customers_silver c ON l.customer_id = c.customer_id
+ORDER BY loan_to_income_ratio DESC;
+```
+
+### Connect from BI Tools
+
+**JDBC Connection String:**
+```
+jdbc:trino://localhost:8085/delta/datalake
+```
+
+**Supported Tools:**
+- Tableau
+- Power BI
+- Apache Superset
+- DBeaver
+- Any JDBC-compatible tool
+
+### Features
+
+✅ **Standard SQL** - SELECT, JOIN, WHERE, GROUP BY, window functions
+✅ **No Spark Code** - Pure SQL queries on Delta Lake
+✅ **Web UI** - Visual query interface at http://localhost:8085
+✅ **JDBC/ODBC** - Connect from any BI tool
+✅ **Fast Execution** - Distributed query processing
+✅ **70+ Query Examples** - Ready-to-use SQL queries
+
+### Documentation
+
+📖 **[CATALOG_GUIDE.md](CATALOG_GUIDE.md)** - Complete catalog & query guide covering:
+- Architecture and setup
+- SQL query examples (basic to advanced)
+- JDBC/ODBC connection
+- BI tool integration (Tableau, Power BI)
+- Performance tips
+- Troubleshooting
+
+📄 **[docker/query-examples.sql](docker/query-examples.sql)** - 70+ ready-to-use SQL queries
+
+### Alternative Metastores
+
+We use **Hive Metastore** (production-standard), but you can also use:
+- **Nessie** - Git-like versioning for tables
+- **Unity Catalog** - Databricks governance
+- **Polaris** - Snowflake Iceberg catalog
+- **PostgreSQL Direct** - Simple, no extra service
+
+See [CATALOG_GUIDE.md](CATALOG_GUIDE.md) for alternatives.
 
 ---
 

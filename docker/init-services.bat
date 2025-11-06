@@ -74,4 +74,6 @@ echo   Spark Master:    http://localhost:8081  (Cluster UI)
 echo   Spark Worker 1:  http://localhost:8082
 echo   Spark Worker 2:  http://localhost:8083
 echo   Spark History:   http://localhost:18080
+echo   Trino (SQL):     http://localhost:8085  (Query Engine)
+echo   Hive Metastore:  thrift://localhost:9083  (Catalog)
 echo.
