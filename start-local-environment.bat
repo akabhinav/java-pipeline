@@ -81,12 +81,23 @@ echo   Kafka UI:       http://localhost:8080
 echo   MinIO Console:  http://localhost:9001  (minioadmin/minioadmin)
 echo   pgAdmin:        http://localhost:5050  (admin@pipeline.com/admin123)
 echo   PostgreSQL:     localhost:5432         (pipeline/pipeline123)
+echo   Spark Master:   http://localhost:8081  (Cluster UI)
+echo   Spark Worker 1: http://localhost:8082
+echo   Spark Worker 2: http://localhost:8083
+echo   Spark History:  http://localhost:18080
+echo.
+echo Sample Data Loaded:
+echo   PostgreSQL: 15 customers, 15 loan applications, 30 transactions
+echo   MinIO (S3): customers.csv, credit_bureau.csv
+echo   Kafka: 4 topics created
+echo   Spark Cluster: 1 master + 2 workers (4 cores total)
 echo.
 echo Next Steps:
-echo   1. View services:  docker-compose ps
-echo   2. View logs:      start-local-environment.bat --logs
-echo   3. Run pipeline:   cd pipeline-examples ^&^& mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.RealConnectorsPipeline"
-echo   4. Stop services:  start-local-environment.bat --stop
+echo   1. View services:         docker-compose ps
+echo   2. View logs:             start-local-environment.bat --logs
+echo   3. Run on local mode:     cd pipeline-examples ^&^& mvn exec:java -Dexec.mainClass="..."
+echo   4. Run on Spark cluster:  run-pipeline-on-cluster.bat RealConnectorsPipeline
+echo   5. Stop services:         start-local-environment.bat --stop
 echo.
 goto :end
 
@@ -111,6 +122,10 @@ echo   Kafka UI:       http://localhost:8080
 echo   MinIO Console:  http://localhost:9001
 echo   pgAdmin:        http://localhost:5050
 echo   PostgreSQL:     localhost:5432
+echo   Spark Master:   http://localhost:8081
+echo   Spark Worker 1: http://localhost:8082
+echo   Spark Worker 2: http://localhost:8083
+echo   Spark History:  http://localhost:18080
 goto :end
 
 :logs

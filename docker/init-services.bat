@@ -64,4 +64,8 @@ echo   MinIO Console:   http://localhost:9001  (minioadmin/minioadmin)
 echo   pgAdmin:         http://localhost:5050  (admin@pipeline.com/admin123)
 echo   PostgreSQL:      localhost:5432         (pipeline/pipeline123)
 echo   Kafka:           localhost:9092
+echo   Spark Master:    http://localhost:8081  (Cluster UI)
+echo   Spark Worker 1:  http://localhost:8082
+echo   Spark Worker 2:  http://localhost:8083
+echo   Spark History:   http://localhost:18080
 echo.
