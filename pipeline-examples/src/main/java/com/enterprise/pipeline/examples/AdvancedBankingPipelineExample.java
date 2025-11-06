@@ -54,7 +54,7 @@ public class AdvancedBankingPipelineExample {
 
             // Execute pipelines
             processCustomerAccounts(spark);
-            processTransactionsWithFraud Detection(spark);
+            processTransactionsWithFraudDetection(spark);
             processLoanApplications(spark);
             generateCustomerRankings(spark);
 
