@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Pipeline PostgreSQL",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "banking",
+      "Username": "pipeline",
+      "Password": "pipeline123",
+      "SSLMode": "prefer",
+      "Comment": "Enterprise Data Pipeline Database"
+    }
+  }
+}
