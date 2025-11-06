@@ -86,7 +86,14 @@ public class GroupByTransform implements Transformation {
                 aggColumns.add(aggCol);
             }
 
-            return input.groupBy(groupColumns.toArray(new String[0]))
+            // Convert group columns to Column objects for groupBy (fixes varargs issue)
+            Column firstGroupCol = functions.col(groupColumns.get(0));
+            Column[] restGroupCols = groupColumns.stream()
+                    .skip(1)
+                    .map(functions::col)
+                    .toArray(Column[]::new);
+
+            return input.groupBy(firstGroupCol, restGroupCols)
                     .agg(aggColumns.get(0), aggColumns.stream().skip(1).toArray(Column[]::new));
 
         } catch (Exception e) {
