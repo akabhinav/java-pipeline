@@ -31,10 +31,16 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Spring Core for DI -->
+        <!-- Spring Framework 6.x for DI -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <!-- Jakarta Annotations (required by Spring Framework 6) -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
 
         <!-- Jackson for JSON -->

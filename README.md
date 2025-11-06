@@ -22,9 +22,10 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 
 ### Prerequisites
 
-- Java 17 or higher
+- Java 17 or higher (LTS)
 - Apache Maven 3.8+
 - Apache Spark 3.5
+- Spring Framework 6.1.x (included via Maven dependencies)
 
 ### Build the Project
 
@@ -314,11 +315,27 @@ mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.examples.JsonConfigPipel
 
 - **Language**: Java 17 (LTS)
 - **Processing**: Apache Spark 3.5
-- **Framework**: Spring Boot 3.x (for DI)
+- **Framework**: Spring Framework 6.1.x (for DI and IoC)
 - **Build**: Maven 3.8+
 - **Testing**: JUnit 5, AssertJ, Mockito
 - **Logging**: SLF4J + Logback
 - **JSON**: Jackson
+- **Annotations**: Jakarta Annotations 2.1
+
+### Compatibility Matrix
+
+| Component | Version | Notes |
+|-----------|---------|-------|
+| Java | 17+ | LTS version, required for Spring Framework 6.x |
+| Spring Framework | 6.1.2 | Fully compatible with Java 17 and Spark 3.5 |
+| Apache Spark | 3.5.0 | Scala 2.12 binary version |
+| Jakarta Annotations | 2.1.1 | Required by Spring Framework 6.x |
+
+**Why Spring Framework (not Spring Boot)?**
+- Lightweight: Only essential DI/IoC features, no web server overhead
+- Compatible: Works seamlessly with Spark 3.5's ClassLoader
+- Flexible: Easy integration with Spark's execution model
+- Simple: Minimal dependencies and configuration
 
 ## Contributing
 
