@@ -14,6 +14,7 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 ✅ **Dual Pipeline Definition**: Build pipelines with Java Fluent API or JSON configuration
 ✅ **UI-Based Rule Engine**: Define validation, transformation, and business rules through visual UI
 ✅ **SDK Orchestrator**: DAG-based workflow orchestration for multi-job pipelines with retry, SLA, scheduling 🆕
+✅ **Data Quality Framework**: Comprehensive profiling, metrics, rules, and anomaly detection for data quality 🆕
 ✅ **50+ Built-in Transformations**: Selection, filtering, aggregation, joins, window functions, and more
 ✅ **Multiple Connectors**: File, JDBC, S3, and Kafka support
 ✅ **Cloud Storage**: AWS S3 connector with full SDK integration
@@ -733,6 +734,31 @@ data-pipeline-platform/
 │   └── scheduler/
 │       └── CronScheduler.java         # Cron scheduling
 │
+├── sdk-data-quality/                  # Data Quality Framework 🆕
+│   ├── DataQualityFramework.java     # Main API
+│   ├── profiler/
+│   │   ├── DataProfiler.java          # Data profiling
+│   │   ├── ColumnProfile.java
+│   │   └── ProfileResult.java
+│   ├── metrics/
+│   │   ├── QualityMetrics.java        # Quality metrics
+│   │   ├── CompletenessMetric.java
+│   │   ├── UniquenessMetric.java
+│   │   ├── AccuracyMetric.java
+│   │   └── ConsistencyMetric.java
+│   ├── rules/
+│   │   ├── RuleEngine.java            # Rules validation
+│   │   ├── NotNullRule.java
+│   │   ├── RangeRule.java
+│   │   ├── RegexRule.java
+│   │   └── UniqueRule.java
+│   ├── anomaly/
+│   │   ├── AnomalyDetector.java       # Anomaly detection
+│   │   ├── StatisticalAnomalyDetector.java
+│   │   └── VolumeAnomalyDetector.java
+│   └── report/
+│       └── QualityReport.java         # Comprehensive reports
+│
 └── pipeline-examples/                 # Working examples
     ├── BasicPipelineExample.java
     ├── ComprehensiveBankingPipeline.java
@@ -1130,6 +1156,182 @@ mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.orchestrator.examples.Si
 - Cron scheduling examples
 - Airflow comparison
 - When to use each solution
+
+---
+
+## Data Quality Framework 🆕
+
+**Comprehensive data quality assessment** - profile data, validate metrics, enforce rules, and detect anomalies - all with a simple fluent API.
+
+### What is it?
+
+A complete framework for assessing and ensuring data quality across your pipelines. Perfect for validating Data Lake layers (Bronze → Silver → Gold) and ensuring production data meets quality standards.
+
+### Quick Start
+
+```java
+import com.enterprise.pipeline.quality.*;
+
+// Load your data
+Dataset<Row> dataset = spark.read().format("delta")
+    .load("s3a://data-lake/silver/customers");
+
+// Comprehensive quality assessment
+QualityReport report = DataQualityFramework.assess(dataset, "customers")
+    .profile()                          // Data profiling (stats, nulls, distributions)
+    .withMetrics(metrics -> metrics
+        .addCompleteness("email")       // Check email completeness
+        .addUniqueness("customer_id")   // Check ID uniqueness
+        .addAccuracy("age", "age >= 18 AND age <= 120")
+    )
+    .withRules(rules -> rules
+        .addNotNull("customer_id")      // Validation rules
+        .addRange("age", 18, 120)
+        .addRegex("email", "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+    )
+    .detectAnomalies()                  // Statistical outlier detection
+    .generate();
+
+// Print comprehensive report with overall score
+System.out.println(report);
+
+// Check if quality passes threshold
+if (report.passes(80.0)) {
+    System.out.println("✓ Data quality acceptable");
+} else {
+    System.out.println("✗ Quality issues: " + report.getOverallScore() + "%");
+}
+```
+
+### Core Features
+
+**1. Data Profiling** - Understand your data
+- Column statistics (min, max, mean, median, stddev)
+- Null analysis (count and percentage)
+- Distinctness (unique value counts)
+- String metrics (length statistics)
+- Value distributions (top N values)
+- Quality scores (completeness, uniqueness percentages)
+
+**2. Quality Metrics** - Measure quality dimensions
+- **Completeness**: Percentage of non-null values
+- **Uniqueness**: Percentage of distinct values
+- **Accuracy**: Pattern/range validation scores
+- **Consistency**: Cross-field validation
+- **Weighted Scoring**: Custom metric weights for overall score
+
+**3. Quality Rules** - Enforce business constraints
+- **Not Null**: Required field validation
+- **Range**: Numeric bounds (age 18-120)
+- **Regex**: Pattern matching (email, phone, SSN)
+- **Uniqueness**: Duplicate detection
+- **Custom Rules**: Your business logic
+- **Severity Levels**: INFO, WARNING, ERROR, CRITICAL
+
+**4. Anomaly Detection** - Find unusual patterns
+- **Statistical Outliers**: Z-score and IQR methods
+- **Volume Anomalies**: Unexpected row counts
+- **Customizable Thresholds**: Configure sensitivity
+
+**5. Comprehensive Reports** - Single unified view
+- Overall quality score (0-100)
+- Letter grades (A/B/C/D/F)
+- Profiling results
+- Metric scores
+- Rule violations
+- Detected anomalies
+
+### Integration with Data Lake
+
+Validate Data Lake layers before promotion:
+
+```java
+// Bronze → Silver validation
+Dataset<Row> bronze = spark.read().format("delta")
+    .load("s3a://data-lake/bronze/transactions");
+
+QualityReport bronzeReport = DataQualityFramework.assess(bronze, "bronze_transactions")
+    .profile()
+    .withRules(rules -> rules
+        .addNotNull("transaction_id")
+        .addUnique("transaction_id")
+        .addRange("amount", 0.01, 1000000.00)
+    )
+    .detectAnomalies()
+    .generate();
+
+// Only proceed to Silver if quality passes
+if (bronzeReport.passes(95.0)) {
+    Dataset<Row> silver = cleanData(bronze);
+    silver.write().format("delta").mode("append")
+        .save("s3a://data-lake/silver/transactions");
+} else {
+    logger.error("Bronze quality check failed: " + bronzeReport);
+}
+```
+
+### Integration with SDK Orchestrator
+
+Use as quality check jobs in workflows:
+
+```java
+public class QualityCheckJob implements Job {
+    @Override
+    public JobResult execute(JobContext context) {
+        Dataset<Row> data = loadData(context);
+
+        QualityReport report = DataQualityFramework.assess(data, "validation")
+            .profile()
+            .withMetrics(/* ... */)
+            .withRules(/* ... */)
+            .generate();
+
+        if (report.passes(80.0)) {
+            return JobResult.success(getId());
+        } else {
+            return JobResult.failed(getId(),
+                new Exception("Quality: " + report.getOverallScore() + "%"));
+        }
+    }
+}
+
+// Workflow with quality gate
+Pipeline.create("etl-with-quality")
+    .addJob("ingest", ingestJob)
+    .addJob("quality_check", new QualityCheckJob())
+        .dependsOn("ingest")
+    .addJob("transform", transformJob)
+        .dependsOn("quality_check")  // Only runs if quality passes
+    .run();
+```
+
+### Running the Example
+
+```bash
+cd sdk-data-quality
+mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.quality.examples.DataQualityExample"
+```
+
+### Features
+
+✅ **Data Profiling** - Statistics, nulls, distributions
+✅ **Quality Metrics** - Completeness, uniqueness, accuracy, consistency
+✅ **Validation Rules** - Not-null, range, regex, unique, custom
+✅ **Anomaly Detection** - Statistical outliers, volume anomalies
+✅ **Comprehensive Reports** - Overall score + detailed breakdowns
+✅ **Fluent API** - Simple, readable configuration
+✅ **Spark Native** - Distributed processing for big data
+✅ **Extensible** - Custom metrics, rules, detectors
+
+### Documentation
+
+📖 **[sdk-data-quality/README.md](sdk-data-quality/README.md)** - Complete guide covering:
+- All features with examples
+- API reference
+- Data Lake integration
+- Orchestrator integration
+- Custom rules and metrics
+- Best practices
 
 ---
 

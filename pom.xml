@@ -43,6 +43,7 @@
         <module>pipeline-sdk</module>
         <module>sdk-listeners</module>
         <module>sdk-orchestrator</module>
+        <module>sdk-data-quality</module>
         <module>pipeline-examples</module>
     </modules>
 
