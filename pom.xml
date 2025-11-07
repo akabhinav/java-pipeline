@@ -41,6 +41,7 @@
 
     <modules>
         <module>pipeline-sdk</module>
+        <module>sdk-listeners</module>
         <module>pipeline-examples</module>
     </modules>
 
