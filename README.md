@@ -15,6 +15,7 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 ✅ **UI-Based Rule Engine**: Define validation, transformation, and business rules through visual UI
 ✅ **SDK Orchestrator**: DAG-based workflow orchestration for multi-job pipelines with retry, SLA, scheduling 🆕
 ✅ **Data Quality Framework**: Comprehensive profiling, metrics, rules, and anomaly detection for data quality 🆕
+✅ **SDK Integrations**: Extended connectors for NoSQL (MongoDB, Cassandra), REST APIs, Azure, GCS 🆕
 ✅ **50+ Built-in Transformations**: Selection, filtering, aggregation, joins, window functions, and more
 ✅ **Multiple Connectors**: File, JDBC, S3, and Kafka support
 ✅ **Cloud Storage**: AWS S3 connector with full SDK integration

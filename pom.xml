@@ -44,6 +44,7 @@
         <module>sdk-listeners</module>
         <module>sdk-orchestrator</module>
         <module>sdk-data-quality</module>
+        <module>sdk-integrations</module>
         <module>pipeline-examples</module>
     </modules>
 
