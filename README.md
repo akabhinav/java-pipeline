@@ -13,6 +13,7 @@ A simple, extensible, production-grade data pipeline platform built on Apache Sp
 
 ✅ **Dual Pipeline Definition**: Build pipelines with Java Fluent API or JSON configuration
 ✅ **UI-Based Rule Engine**: Define validation, transformation, and business rules through visual UI
+✅ **SDK Orchestrator**: DAG-based workflow orchestration for multi-job pipelines with retry, SLA, scheduling 🆕
 ✅ **50+ Built-in Transformations**: Selection, filtering, aggregation, joins, window functions, and more
 ✅ **Multiple Connectors**: File, JDBC, S3, and Kafka support
 ✅ **Cloud Storage**: AWS S3 connector with full SDK integration
@@ -692,17 +693,50 @@ data-pipeline-platform/
 │   │   └── builder/
 │   │       └── PipelineBuilder.java
 │   │
-│   └── sdk-transformations/           # Built-in transformations
-│       ├── foundational/
-│       │   ├── SelectTransform.java
-│       │   ├── FilterTransform.java
-│       │   └── ...
-│       └── connector/
-│           ├── FileSource.java
-│           └── FileSink.java
+│   ├── sdk-transformations/           # Built-in transformations
+│   │   ├── foundational/
+│   │   │   ├── SelectTransform.java
+│   │   │   ├── FilterTransform.java
+│   │   │   └── ...
+│   │   └── connector/
+│   │       ├── FileSource.java
+│   │       └── FileSink.java
+│   │
+│   ├── sdk-connectors/                # Data connectors
+│   │   ├── S3Connector.java
+│   │   ├── KafkaConnector.java
+│   │   └── ...
+│   │
+│   └── sdk-rules/                     # Rule engine
+│       ├── RuleExecutor.java
+│       └── BankingRuleTemplates.java
+│
+├── sdk-listeners/                     # Generic Spark Listeners 🆕
+│   ├── LoggingSparkListener.java
+│   ├── MetricsSparkListener.java
+│   └── ...
+│
+├── sdk-orchestrator/                  # Workflow orchestration 🆕
+│   ├── Pipeline.java                  # Fluent API
+│   ├── core/
+│   │   ├── Job.java
+│   │   ├── JobContext.java
+│   │   └── JobResult.java
+│   ├── dag/
+│   │   └── DAG.java                   # DAG engine
+│   ├── executor/
+│   │   └── DAGExecutor.java           # Parallel execution
+│   ├── retry/
+│   │   └── RetryPolicy.java           # Retry strategies
+│   ├── sla/
+│   │   └── SLAMonitor.java            # SLA monitoring
+│   └── scheduler/
+│       └── CronScheduler.java         # Cron scheduling
 │
 └── pipeline-examples/                 # Working examples
-    └── BasicPipelineExample.java
+    ├── BasicPipelineExample.java
+    ├── ComprehensiveBankingPipeline.java
+    └── SimpleETLPipeline.java
 ```
 
 ## Creating Custom Transformations
@@ -954,6 +988,150 @@ Enterprise features as microservices:
 - `ml-service`: ML model integration
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) and [REFACTORING_PLAN.md](REFACTORING_PLAN.md) for complete architecture details.
+
+## SDK Orchestrator - Workflow Management 🆕
+
+**DAG-based workflow orchestration** for managing multi-job data pipelines - similar to Airflow, Prefect, and Dagster, but lightweight and Java-native.
+
+### What is SDK Orchestrator?
+
+A **lightweight workflow orchestration engine** that manages complex data pipelines with multiple jobs and dependencies.
+
+**Key Difference from Spark DAG:**
+- **Spark's Internal DAG**: Optimizes transformations *within* a single job (`filter → join → groupBy`)
+- **SDK Orchestrator DAG**: Manages *multiple* independent jobs (`Ingest Job → Transform Job → Load Job`)
+- **Think**: Spark DAG = car engine (internal), Orchestrator DAG = traffic system (external)
+
+### Quick Start
+
+```java
+import com.enterprise.pipeline.orchestrator.*;
+
+// Create and run a simple ETL pipeline
+DAGExecutionResult result = Pipeline.create("daily-etl")
+    .addJob("ingest", ingestJob)
+    .addJob("transform", transformJob)
+        .dependsOn("ingest")
+    .addJob("load", loadJob)
+        .dependsOn("transform")
+    .retry(3)
+    .sla(Duration.ofMinutes(30))
+    .run();
+
+System.out.println("Status: " + result.getOverallStatus());
+```
+
+### Core Features
+
+**1. DAG-Based Workflows** - Define job dependencies with automatic parallel execution:
+```
+     A
+    / \
+   B   C
+    \ /
+     D
+
+Level 0: A runs
+Level 1: B and C run in parallel (after A completes)
+Level 2: D runs (after B and C complete)
+```
+
+**2. Retry Policies** - Automatic retry with multiple strategies:
+- Exponential backoff: `RetryPolicy.exponentialBackoff(5)`
+- Fixed delay: `RetryPolicy.fixedDelay(3, Duration.ofSeconds(10))`
+- Linear backoff: `RetryPolicy.linearBackoff(4, Duration.ofSeconds(5))`
+
+**3. SLA Monitoring** - Track execution time and alert on violations:
+```java
+SLAMonitor monitor = SLAMonitor.builder()
+    .threshold(Duration.ofHours(1))
+    .onViolation(violation -> sendSlackAlert(violation))
+    .build();
+```
+
+**4. Cron Scheduling** - Schedule workflows to run automatically:
+```java
+Pipeline.create("daily-reports")
+    .addJob("generate", reportJob)
+    .schedule("0 0 * * *")  // Daily at midnight
+    .startScheduled();
+```
+
+**5. Parallel Execution** - Jobs at the same dependency level run in parallel:
+```java
+DAGExecutor executor = new DAGExecutor(4);  // 4 parallel threads
+```
+
+### Why SDK Orchestrator vs Airflow?
+
+| Feature | SDK Orchestrator | Airflow |
+|---------|------------------|---------|
+| **Language** | Java | Python |
+| **Deployment** | Embedded (single JAR) | Separate cluster |
+| **Infrastructure** | None (in-memory) | PostgreSQL, web server, scheduler |
+| **Type Safety** | Compile-time | Runtime |
+| **Best For** | Embedded workflows, Java apps | Enterprise workflows, large teams |
+
+### When to Use SDK Orchestrator
+
+✅ Building a **platform/SDK** with embedded orchestration
+✅ **Java-only** environment (no Python allowed)
+✅ **Simple workflows** (Airflow is overkill)
+✅ **Lightweight deployments** (no infrastructure overhead)
+✅ **Type-safe** compile-time validation needed
+
+### Complete Example
+
+```java
+// Define jobs
+Job ingest = new IngestJob();
+Job clean = new CleanJob();
+Job aggregate = new AggregateJob();
+Job load = new LoadJob();
+
+// Build pipeline
+DAGExecutionResult result = Pipeline.create("etl")
+    .addJob("ingest", ingest)
+    .addJob("clean", clean).dependsOn("ingest")
+    .addJob("aggregate", aggregate).dependsOn("clean")
+    .addJob("load", load).dependsOn("aggregate")
+    .withParameters(Map.of("date", LocalDate.now()))
+    .retry(RetryPolicy.exponentialBackoff(3))
+    .sla(Duration.ofHours(2))
+    .maxParallelism(8)
+    .run();
+
+// Check results
+if (result.isSuccess()) {
+    System.out.println("Pipeline succeeded!");
+} else {
+    result.getJobResults().forEach((jobId, jobResult) -> {
+        if (jobResult.isFailure()) {
+            System.err.println("Failed job: " + jobId);
+        }
+    });
+}
+```
+
+### Running the Example
+
+```bash
+cd sdk-orchestrator
+mvn exec:java -Dexec.mainClass="com.enterprise.pipeline.orchestrator.examples.SimpleETLPipeline"
+```
+
+### Documentation
+
+📖 **[sdk-orchestrator/README.md](sdk-orchestrator/README.md)** - Complete guide covering:
+- Architecture and components
+- Job implementation guide
+- DAG engine internals
+- Retry policies and SLA monitoring
+- Cron scheduling examples
+- Airflow comparison
+- When to use each solution
+
+---
 
 ## UI-Based Rule Engine 🎯
 
